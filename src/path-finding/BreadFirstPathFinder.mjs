@@ -81,15 +81,15 @@ export default class BreadFirstPathFinder extends BasePathFinder {
             //     DIRECTIONS.LEFT
             // ]);
 
-            let order = [ DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.UP, DIRECTIONS.RIGHT ];
+            const order = [ DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.UP, DIRECTIONS.LEFT ];
 
-            if (this._lastUsedDirection === DIRECTIONS.LEFT) {
-                order = [ DIRECTIONS.LEFT, DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN ];
-            } else if (this._lastUsedDirection === DIRECTIONS.UP) {
-                order = [ DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT ];
-            } else if (this._lastUsedDirection === DIRECTIONS.RIGHT) {
-                order = [ DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.UP ];
-            }
+            // if (this._lastUsedDirection === DIRECTIONS.LEFT) {
+            //     order = [ DIRECTIONS.LEFT, DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN ];
+            // } else if (this._lastUsedDirection === DIRECTIONS.UP) {
+            //     order = [ DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT ];
+            // } else if (this._lastUsedDirection === DIRECTIONS.RIGHT) {
+            //     order = [ DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.UP ];
+            // }
 
             const neighbors = this._maze.getValidNeighborsForPos(node.pos, order);
 
