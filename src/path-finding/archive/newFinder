@@ -1,0 +1,88 @@
+import { getDirectionByPosDiff, hashPos } from '../utils/positions.mjs';
+import BasePathFinder from './BasePathFinder.mjs';
+
+const GOOD_NODES_TO_CHECK = 20;
+
+export default class BreadFirstPathFinder extends BasePathFinder {
+    findPathToBestExplorePoint(sourcePos) {
+        const queue = [];
+        const visitedNodes = new Map();
+        const startNode = this._buildQueueNode({ nodePos: sourcePos });
+
+        queue.push(startNode);
+        visitedNodes.set(startNode.id, startNode);
+
+        let bestNode;
+        let goodNodesCount = 0;
+
+        while (queue.length) {
+            const node = queue.shift();
+            const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
+
+            if (knowledge > 0) {
+                goodNodesCount++;
+                node.score = -node.distFromStart + knowledge;
+
+                if (!bestNode) {
+                    bestNode = node;
+                } else if (node.score > bestNode.score) {
+                    bestNode = node;
+                }
+
+                if (goodNodesCount >= GOOD_NODES_TO_CHECK) {
+                    break;
+                }
+            }
+
+            const neighbors = this._maze.getValidNeighborsForPos(node.pos);
+
+            for (const neighborPos of neighbors) {
+                const neighborNodeId = hashPos(neighborPos);
+
+                if (visitedNodes.has(neighborNodeId)) {
+                    continue;
+                }
+
+                const neighborNode = this._buildQueueNode({ nodePos: neighborPos, prevNode: node });
+
+                queue.push(neighborNode);
+                visitedNodes.set(neighborNodeId, true);
+            }
+        }
+
+        if (bestNode) {
+            return this._retracePathFromFinalNode(bestNode);
+        }
+
+        return null;
+    }
+
+    _buildQueueNode({ nodePos, prevNode = null }) {
+        const distFromStart = prevNode ? prevNode.distFromStart + 1 : 0;
+
+        const node = {
+            distFromStart,
+            prevNode,
+            pos : nodePos
+        };
+
+        return node;
+    }
+
+    _retracePathFromFinalNode(finalNode) {
+        const path = [];
+
+        let node = finalNode;
+
+        while (node.prevNode) {
+            const direction = getDirectionByPosDiff(node.prevNode.pos, node.pos);
+
+            path.push(direction);
+
+            node = node.prevNode;
+        }
+
+        return path.reverse();
+    }
+}
+

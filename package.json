@@ -1,0 +1,35 @@
+{
+    "name": "seeker",
+    "version": "1.0.0",
+    "source": "src/main.mjs",
+    "main": "dist/common-seeker.js",
+    "module": "dist/seeker.mjs",
+    "scripts": {
+        "lint": "eslint src --ext js,mjs",
+        "build": "rimraf dist && parcel build",
+        "test": "node tests/run.mjs"
+    },
+    "dependencies": {
+        "@babel/cli": "^7.22.9",
+        "@babel/core": "^7.22.9",
+        "@babel/eslint-parser": "^7.22.9",
+        "@babel/preset-env": "^7.22.9",
+        "@babel/preset-react": "^7.22.5",
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "d2l-license-checker": "^4.1.18",
+        "eslint": "^8.45.0",
+        "eslint-config-webbylab": "^6.0.0",
+        "eslint-plugin-fetch": "0.0.1",
+        "eslint-plugin-import": "^2.27.5",
+        "eslint-plugin-more": "^1.0.5",
+        "eslint-plugin-no-require-lodash": "1.1.0",
+        "eslint-plugin-prefer-spread": "1.0.3",
+        "eslint-plugin-react": "^7.32.2",
+        "eslint-plugin-security": "^1.7.1",
+        "maze-generation": "^3.1.2",
+        "node-maze-generator": "^1.4.4",
+        "parcel": "^2.9.3",
+        "rimraf": "^5.0.1",
+        "table": "^6.8.1"
+    }
+}

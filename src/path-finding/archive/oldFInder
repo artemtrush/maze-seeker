@@ -1,0 +1,72 @@
+import { getDirectionByPosDiff, hashPos } from '../utils/positions.mjs';
+import BasePathFinder from './BasePathFinder.mjs';
+
+export default class BreadFirstPathFinder extends BasePathFinder {
+    findPathToBestExplorePoint(sourcePos, minKnowledge) {
+        const queue = [];
+        const visitedNodes = new Map();
+
+        const startNode = this._buildQueueNode({ nodePos: sourcePos });
+        let finalNode;
+
+        queue.push(startNode);
+        visitedNodes.set(startNode.id, startNode);
+
+        while (queue.length) {
+            const node = queue.shift();
+            const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
+
+            if (knowledge >= minKnowledge) {
+                finalNode = node;
+                break;
+            }
+
+            const neighbors = this._maze.getValidNeighborsForPos(node.pos);
+
+            for (const neighborPos of neighbors) {
+                const neighborNode = this._buildQueueNode({ nodePos: neighborPos, prevNode: node });
+
+                if (!visitedNodes.has(neighborNode.id)) {
+                    queue.push(neighborNode);
+                    visitedNodes.set(neighborNode.id, neighborNode);
+                }
+            }
+        }
+
+        if (finalNode) {
+            return this._retracePathFromFinalNode(finalNode);
+        }
+
+        return null;
+    }
+
+    _buildQueueNode({ nodePos, prevNode = null }) {
+        const distFromStart = prevNode ? prevNode.distFromStart + 1 : 0;
+
+        const node = {
+            id  : hashPos(nodePos),
+            distFromStart,
+            prevNode,
+            pos : nodePos
+        };
+
+        return node;
+    }
+
+    _retracePathFromFinalNode(finalNode) {
+        const path = [];
+
+        let node = finalNode;
+
+        while (node.prevNode) {
+            const direction = getDirectionByPosDiff(node.prevNode.pos, node.pos);
+
+            path.push(direction);
+
+            node = node.prevNode;
+        }
+
+        return path.reverse();
+    }
+}
+
