@@ -14,5 +14,9 @@ export default function seek(sourcePlayer, meta = {}) {
     meta.actionsCount = player.getActionsCount();
     meta.pathLength = path.length;
 
-    return path;
+    if (process.env.DEBUG) {
+        maze.debugMeta();
+    }
+
+    return [];
 }

@@ -1,6 +1,13 @@
-// import { table } from 'table';
+export default async function printArray(array) {
+    const { table } = await loadModule('table');
 
-export default function printArray(array) {
-    // console.log(table(array));
-    console.log(JSON.stringify(array, null, 2));
+    console.log(table(array));
 }
+
+const loadModule = async (modulePath) => {
+    try {
+        return await import(modulePath);
+    } catch (e) {
+        throw new Error(`Unable to import module ${modulePath}`);
+    }
+};

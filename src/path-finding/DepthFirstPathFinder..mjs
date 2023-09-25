@@ -3,7 +3,14 @@ import { getDirectionByPosDiff, hashPos } from '../utils/positions.mjs';
 import BasePathFinder from './BasePathFinder.mjs';
 
 export default class DepthFirstPathFinder extends BasePathFinder {
-    findPathToBestExplorePoint(sourcePos) {
+    findPathToBestExplorePoint(sourcePos, passedOptions = {}) {
+        const options = {
+            exit            : 'frontier',
+            minKnowledge    : 1,
+            directionsOrder : [ DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.UP, DIRECTIONS.LEFT ],
+            ...passedOptions
+        };
+
         const queue = [];
         const visitedNodes = new Map();
         const startNode = this._buildQueueNode({ nodePos: sourcePos });
@@ -15,21 +22,24 @@ export default class DepthFirstPathFinder extends BasePathFinder {
 
         while (queue.length) {
             const node = queue.pop();
-            const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
 
-            if (knowledge > 0) {
-                bestNode = node;
-                break;
+            if (options.exit === 'knowledge') {
+                const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
+
+                if (knowledge >= options.minKnowledge) {
+                    bestNode = node;
+                    break;
+                }
             }
 
-            const neighbors = this._maze.getValidNeighborsForPos(node.pos, [
-                DIRECTIONS.LEFT,
-                DIRECTIONS.DOWN,
-                DIRECTIONS.RIGHT,
-                DIRECTIONS.UP
-            ]);
+            if (options.exit === 'frontier') {
+                if (this._maze.isFrontier(node.pos)) {
+                    bestNode = node;
+                    break;
+                }
+            }
 
-            // neighbors.reverse();
+            const neighbors = this._maze.getValidNeighborsForPos(node.pos, options.directionsOrder);
 
             for (const neighborPos of neighbors) {
                 const neighborNodeId = hashPos(neighborPos);

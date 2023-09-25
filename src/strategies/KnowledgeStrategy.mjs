@@ -1,3 +1,4 @@
+import { DIRECTIONS } from '../constants.mjs';
 import BreadFirstPathFinder from '../path-finding/BreadFirstPathFinder.mjs';
 import DepthFirstPathFinder from '../path-finding/DepthFirstPathFinder..mjs';
 import BaseStrategy from './BaseStrategy.mjs';
@@ -38,24 +39,30 @@ export default class MainStrategy extends BaseStrategy {
     }
 
     _pickNextExplorePoint() {
+        const { DOWN, RIGHT, UP, LEFT } = DIRECTIONS;
+
+        const directionsOrder = [ DOWN, RIGHT, UP, LEFT ];
+
         const playerPos = this._maze.getPlayerPos();
 
-        const firstTry = this._breadFirstPathFinder.findPathToBestExplorePoint(playerPos, 6);
+        const firstTry = this._breadFirstPathFinder.findPathToBestExplorePoint(playerPos, {
+            exit         : 'knowledge',
+            minKnowledge : 10,
+            directionsOrder
+        });
 
         if (firstTry) {
             return firstTry;
         }
 
-        // const secondTry = this._breadFirstPathFinder.findPathToBestExplorePoint(playerPos, 3);
+        const secondTry = this._breadFirstPathFinder.findPathToBestExplorePoint(playerPos, {
+            exit         : 'knowledge',
+            minKnowledge : 1,
+            directionsOrder
+        });
 
-        // if (secondTry) {
-        //     return secondTry;
-        // }
-
-        const thirdTry = this._breadFirstPathFinder.findPathToBestExplorePoint(playerPos, 1);
-
-        if (thirdTry) {
-            return thirdTry;
+        if (secondTry) {
+            return secondTry;
         }
 
         throw new Error('Something went wrong with path-finding!');

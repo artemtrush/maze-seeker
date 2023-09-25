@@ -8,7 +8,7 @@ import MapGenerator from './maps/MapGenerator.mjs';
 
 const TEST_WIDTH = 100;
 const TEST_HEIGHT = 100;
-const TEST_ITERATIONS = 10;
+const TEST_ITERATIONS = process.env.DEBUG ? 0 : 30;
 
 function testMap(map, startX, startY) {
     const player = new Player(map, startY, startX);
@@ -36,7 +36,9 @@ for (let i = 0; i < TEST_ITERATIONS; i++) {
     results.push(result);
 }
 
-const sum = results.reduce((acc, item) => acc + item.actionsCount, 0);
-const avg = sum / results.length;
+if (TEST_ITERATIONS) {
+    const sum = results.reduce((acc, item) => acc + item.actionsCount, 0);
+    const avg = sum / results.length;
 
-console.log('RANDOM RESULT', { actionsCount: avg });
+    console.log('RANDOM RESULT', { actionsCount: avg });
+}

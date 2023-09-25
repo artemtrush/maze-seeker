@@ -45,7 +45,14 @@ export default class BreadFirstPathFinder extends BasePathFinder {
     }
 
 
-    findPathToBestExplorePoint(sourcePos, minKnowledge) {
+    findPathToBestExplorePoint(sourcePos, passedOptions = {}) {
+        const options = {
+            exit            : 'frontier',
+            minKnowledge    : 1,
+            directionsOrder : [ DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.UP, DIRECTIONS.LEFT ],
+            ...passedOptions
+        };
+
         const queue = [];
         const visitedNodes = new Map();
         const startNode = this._buildQueueNode({ nodePos: sourcePos });
@@ -57,41 +64,24 @@ export default class BreadFirstPathFinder extends BasePathFinder {
 
         while (queue.length) {
             const node = queue.shift();
-            const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
 
-            if (knowledge >= minKnowledge) {
-                // node.knowledge = knowledge;
+            if (options.exit === 'knowledge') {
+                const knowledge = this._maze.estimatePosPotentialKnowldedge(node.pos);
 
-                bestNode = node;
-                break;
-
-                // if (this._isBetterExplorePoint(node, bestNode)) {
-                //     bestNode = node;
-                // }
-
-                // if (bestNode.distFromStart >= 2) {
-                //     break;
-                // }
+                if (knowledge >= options.minKnowledge) {
+                    bestNode = node;
+                    break;
+                }
             }
 
-            // const neighbors = this._maze.getValidNeighborsForPos(node.pos, [
-            //     DIRECTIONS.DOWN,
-            //     DIRECTIONS.RIGHT,
-            //     DIRECTIONS.UP,
-            //     DIRECTIONS.LEFT
-            // ]);
+            if (options.exit === 'frontier') {
+                if (this._maze.isFrontier(node.pos)) {
+                    bestNode = node;
+                    break;
+                }
+            }
 
-            const order = [ DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.UP, DIRECTIONS.LEFT ];
-
-            // if (this._lastUsedDirection === DIRECTIONS.LEFT) {
-            //     order = [ DIRECTIONS.LEFT, DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN ];
-            // } else if (this._lastUsedDirection === DIRECTIONS.UP) {
-            //     order = [ DIRECTIONS.UP, DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT ];
-            // } else if (this._lastUsedDirection === DIRECTIONS.RIGHT) {
-            //     order = [ DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.UP ];
-            // }
-
-            const neighbors = this._maze.getValidNeighborsForPos(node.pos, order);
+            const neighbors = this._maze.getValidNeighborsForPos(node.pos, options.directionsOrder);
 
             for (const neighborPos of neighbors) {
                 const neighborNodeId = hashPos(neighborPos);
@@ -108,49 +98,10 @@ export default class BreadFirstPathFinder extends BasePathFinder {
         }
 
         if (bestNode) {
-            const path = this._retracePathFromFinalNode(bestNode);
-
-            this._lastUsedDirection = path[0];
-
-            return path;
+            return this._retracePathFromFinalNode(bestNode);
         }
-
 
         return null;
-    }
-
-    _isBetterExplorePoint(node, bestNode) {
-        if (!bestNode) {
-            return true;
-        }
-
-        if (node.knowledge >= bestNode.knowledge * 1.5) {
-            return true;
-        }
-
-        // if (node.distFromStart === bestNode.distFromStart) {
-
-
-        //     return false;
-        // }
-
-        // if (node.distFromStart < bestNode.distFromStart) {
-        //     if (node.knowledge >= bestNode.knowledge) {
-        //         return true;
-        //     }
-
-        //     return false;
-        // }
-
-        // if (node.distFromStart > bestNode.distFromStart) {
-        //     if (node.knowledge > bestNode.knowledge + ) {
-        //         return true;
-        //     }
-
-        //     return false;
-        // }
-
-        return false;
     }
 
     _buildQueueNode({ nodePos, prevNode = null }) {
@@ -181,4 +132,3 @@ export default class BreadFirstPathFinder extends BasePathFinder {
         return path.reverse();
     }
 }
-

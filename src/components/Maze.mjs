@@ -1,16 +1,15 @@
 /* eslint-disable no-param-reassign */
 import { MAZE_MAX_SIZE, CELLS, VIEW_SCOPE_SIZE, VIEW_SCOPE_MARGIN, DIRECTIONS } from '../constants.mjs';
-import { isEqualPos, movePosDown, movePosLeft, movePosRight, movePosToDirection, movePosUp } from '../utils/positions.mjs';
+import { movePosDown, movePosLeft, movePosRight, movePosToDirection, movePosUp } from '../utils/positions.mjs';
 import Field from './Field.mjs';
 
 export default class Maze {
     constructor() {
         // Create larger field by default to don't care about edges
-        this._field = new Field({
-            width        : (MAZE_MAX_SIZE + VIEW_SCOPE_SIZE) * 2,
-            height       : (MAZE_MAX_SIZE + VIEW_SCOPE_SIZE) * 2,
-            initialValue : CELLS.UNKNOWN
-        });
+        const size = (MAZE_MAX_SIZE + VIEW_SCOPE_SIZE) * 2;
+
+        this._field = new Field({ width: size, height: size, initialValue: CELLS.UNKNOWN });
+        this._metaField = new Field({ width: size, height: size, initialValue: CELLS.UNKNOWN });
 
         const centerPos = {
             x : Math.floor(this._field.getWidth() / 2),
@@ -18,6 +17,9 @@ export default class Maze {
         };
 
         this.setPlayerPos(centerPos);
+
+        this._metaCounter = 0;
+        this._metaField.set(centerPos, 0);
 
         this._startPos = centerPos;
         this._goalPos = null;
@@ -69,6 +71,8 @@ export default class Maze {
 
         for (const direction of path) {
             pos = movePosToDirection(pos, direction);
+
+            this._metaField.set(pos, ++this._metaCounter);
         }
 
         this.setPlayerPos(pos);
@@ -90,6 +94,7 @@ export default class Maze {
             }
 
             this._field.set(pos, value);
+            this._metaField.set(pos, value);
 
             if (value === CELLS.GOAL) {
                 this._goalPos = pos;
@@ -189,7 +194,7 @@ export default class Maze {
 
     // Additional methods
 
-    getValidNeighborsForPos(pos, order = [ DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.RIGHT, DIRECTIONS.LEFT ]) {
+    getValidNeighborsForPos(pos, order = [ DIRECTIONS.RIGHT, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.UP ]) {
         const neighbors = [];
 
         for (const direction of order) {
@@ -197,6 +202,27 @@ export default class Maze {
         }
 
         return neighbors.filter(neighbor => this.isValidPos(neighbor));
+    }
+
+    isFrontier(pos) {
+        const cellsAround = [
+            movePosUp(pos),
+            movePosDown(pos),
+            movePosLeft(pos),
+            movePosRight(pos),
+            movePosUp(movePosLeft(pos)),
+            movePosUp(movePosRight(pos)),
+            movePosDown(movePosLeft(pos)),
+            movePosDown(movePosRight(pos))
+        ];
+
+        for (const cellPos of cellsAround) {
+            if (this._field.get(cellPos) === CELLS.UNKNOWN) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     isValidPos(pos) {
@@ -207,6 +233,10 @@ export default class Maze {
 
     debug() {
         this._field.debug();
+    }
+
+    debugMeta() {
+        this._metaField.debug();
     }
 }
 

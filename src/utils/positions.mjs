@@ -60,3 +60,10 @@ export function isEqualPos(firstPos, secondPos) {
 export function calculateManhattanDistance(firstPos, secondPos) {
     return Math.abs(firstPos.x - secondPos.x) + Math.abs(firstPos.y - secondPos.y);
 }
+
+export function calculateEuclideanDistance(firstPos, secondPos) {
+    const dx = firstPos.x - secondPos.x;
+    const dy = firstPos.y - secondPos.y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+}

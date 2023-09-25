@@ -14,6 +14,6 @@ export const CELLS = {
     UNKNOWN : '.'
 };
 
-export const MAZE_MAX_SIZE = 1000;
+export const MAZE_MAX_SIZE = process.env.DEBUG ? 20 : 1000;
 export const VIEW_SCOPE_SIZE = 5;
 export const VIEW_SCOPE_MARGIN = 2;

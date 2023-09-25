@@ -1,10 +1,16 @@
 import MinHeap from '../utils/MinHeap.mjs';
-import { calculateManhattanDistance, getDirectionByPosDiff, hashPos, isEqualPos } from '../utils/positions.mjs';
+import { calculateEuclideanDistance, calculateManhattanDistance, getDirectionByPosDiff, hashPos, isEqualPos } from '../utils/positions.mjs';
 import BasePathFinder from './BasePathFinder.mjs';
 
 export default class AStarPathFinder extends BasePathFinder {
-    findShortestPath(sourcePos, targetPos) {
-        const startNode = this._buildHeapNode({ nodePos: sourcePos, targetPos });
+    findShortestPath(sourcePos, targetPos, passedOptions = {}) {
+        const options = {
+            exit     : 'default',
+            distance : 'manhattan',
+            ...passedOptions
+        };
+
+        const startNode = this._buildHeapNode({ nodePos: sourcePos, targetPos }, options);
         let finalNode;
 
         const heap = new MinHeap([ startNode ]);
@@ -15,7 +21,13 @@ export default class AStarPathFinder extends BasePathFinder {
         while (!heap.isEmpty()) {
             const node = heap.remove();
 
+            // Default exit on target
             if (isEqualPos(node.pos, targetPos)) {
+                finalNode = node;
+                break;
+            }
+
+            if (options.exit === 'frontier' && this._maze.isFrontier(node.pos)) {
                 finalNode = node;
                 break;
             }
@@ -23,7 +35,7 @@ export default class AStarPathFinder extends BasePathFinder {
             const neighbors = this._maze.getValidNeighborsForPos(node.pos);
 
             for (const neighborPos of neighbors) {
-                const neighborNode = this._buildHeapNode({ nodePos: neighborPos, targetPos, prevNode: node });
+                const neighborNode = this._buildHeapNode({ nodePos: neighborPos, targetPos, prevNode: node }, options);
 
                 // In case when node was already handled previously
                 if (visitedNodes.has(neighborNode.id)) {
@@ -57,9 +69,19 @@ export default class AStarPathFinder extends BasePathFinder {
         return null;
     }
 
-    _buildHeapNode({ nodePos, targetPos, prevNode = null }) {
+    _buildHeapNode({ nodePos, targetPos, prevNode = null }, options) {
         const distFromStart = prevNode ? prevNode.distFromStart + 1 : 0;
-        const distFromEnd = calculateManhattanDistance(nodePos, targetPos);
+
+        let distFromEnd;
+
+        if (options.distance === 'euclidian') {
+            distFromEnd = calculateEuclideanDistance(nodePos, targetPos);
+        } else if (options.distance === 'manhattan') {
+            distFromEnd = calculateManhattanDistance(nodePos, targetPos);
+        } else {
+            throw new Error('Unknown distance formula');
+        }
+
         const totalScore = distFromStart + distFromEnd;
 
         const node = {
