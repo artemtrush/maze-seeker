@@ -18,5 +18,5 @@ export default function seek(sourcePlayer, meta = {}) {
         maze.debugMeta();
     }
 
-    return [];
+    return path;
 }
