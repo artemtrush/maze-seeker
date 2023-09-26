@@ -1,13 +1,11 @@
 import { DIRECTIONS } from '../constants.mjs';
 import BreadFirstPathFinder from '../path-finding/BreadFirstPathFinder.mjs';
-import DepthFirstPathFinder from '../path-finding/DepthFirstPathFinder..mjs';
 import BaseStrategy from './BaseStrategy.mjs';
 
 export default class MainStrategy extends BaseStrategy {
     constructor(args) {
         super(args);
 
-        this._depthFirstPathFinder = new DepthFirstPathFinder({ maze: this._maze });
         this._breadFirstPathFinder = new BreadFirstPathFinder({ maze: this._maze });
     }
 
