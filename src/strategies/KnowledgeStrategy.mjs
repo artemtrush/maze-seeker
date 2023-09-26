@@ -41,7 +41,7 @@ export default class MainStrategy extends BaseStrategy {
     _pickNextExplorePoint() {
         const { DOWN, RIGHT, UP, LEFT } = DIRECTIONS;
 
-        const directionsOrder = [ DOWN, RIGHT, UP, LEFT ];
+        const directionsOrder = [ LEFT, RIGHT, DOWN, UP ];
 
         const playerPos = this._maze.getPlayerPos();
 
